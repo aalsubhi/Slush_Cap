@@ -1,0 +1,281 @@
+
+\newif\ifsubmit
+\submitfalse
+\submittrue           % uncomment this line for submission.
+
+
+\newcount\usepng\usepng=1               % use PNG versions of figures (smaller file)
+
+
+\documentclass[sigconf, anonymous=true, 10pt]{acmart}
+
+\usepackage{balance} % For balanced columns on the last page
+\usepackage[normalem]{ulem}
+
+
+\usepackage{graphicx}  % for \includegraphics
+
+
+\ifsubmit
+\usepackage[final]{fixme}
+\else
+\usepackage[draft]{fixme}
+\fxsetup{
+    author=,
+    layout=inline,
+    theme=colorsig
+}
+\fi
+\newcommand{\xxx}{\fxwarning}
+
+\usepackage{url}
+%\usepackage{textgreek}
+
+\usepackage{siunitx}
+%\usepackage{SIunits}
+
+
+\ifnum\usepng=1
+ \DeclareGraphicsExtensions{.png,.eps,.ps,.jpg}
+\else
+ \DeclareGraphicsExtensions{.ps,.eps,.png,.jpg}
+\fi
+
+\usepackage{ifpdf}
+\ifpdf
+\setlength{\pdfpagewidth}{8.5in}
+\setlength{\pdfpageheight}{11in}
+\else
+\fi
+
+\usepackage{microtype}
+\usepackage{paralist}
+
+%stuff for better looking tables
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{dcolumn}
+\pdfcompresslevel=9       % highly compressed pdf
+
+\newlength{\thinline}
+\setlength{\thinline}{0.05em}
+\newlength{\thickline}
+\setlength{\thickline}{0.10em}
+\newcommand{\ra}[1]{\renewcommand{\arraystretch}{#1}}
+\newcolumntype{.}{D{.}{.}{-1}}
+
+\usepackage{enumitem} % to fiddle with enumerate spacing
+
+\usepackage{subcaption}
+\usepackage{xspace}
+% pretty captions: small text, bold figure title
+%\usepackage[bf]{caption}
+%\DeclareCaptionType{copyrightbox}
+%\renewcommand{\captionfont}{\normalsize}
+
+
+\newcommand{\headingg}[1]{\textbf{#1}}
+\newcommand{\term}[1]{\emph{#1}}
+\newcommand{\nowrapterm}[1]{\mbox{\emph{#1}}}
+\newcommand{\secref}[1]{\mbox{Section~\ref{#1}}}
+\newcommand{\plursecref}[1]{\mbox{Sections~{#1}}}
+\newcommand{\symsecref}[1]{\mbox{\S~\ref{#1}}}
+\newcommand{\plursymsecref}[1]{\mbox{\S\S~{#1}}}
+\newcommand{\figref}[1]{\mbox{Figure~\ref{#1}}}
+\newcommand{\tabref}[1]{\mbox{Table~\ref{#1}}}
+\newcommand{\tblref}[1]{\tabref{#1}}
+\newcommand{\algref}[1]{\mbox{Algorithm~\ref{#1}}}
+\newcommand{\listingref}[1]{\mbox{Listing~\ref{#1}}}
+
+% textual substitutions
+\newcommand{\etal}{\mbox{et al.}}
+\newcommand{\ie}{\textit{i.e.,}}
+\newcommand{\eg}{\textit{e.g.,}}
+
+%\newcommand{\degree}{\ensuremath{^\circ}}
+\newcommand{\iv}{I--\kern-.08emV\xspace}
+
+% No-indent paragraphs
+\newcommand{\noind}[0]{\vspace{5 pt} \noindent}
+\newcommand{\noindpar}[1]{\noind {\bf #1}}
+%\newcommand{\noindpar}[1]{\noind \textbf{\small{#1}}}
+
+\newcommand{\textoverline}[1]{$\overline{\mbox{#1}}$}
+
+% Macros for notes, comments, and todo.
+\ifsubmit
+  \newcommand{\colorcomment}[3]{\relax}
+  \newcommand{\greencomment}[2]{\relax}
+  \newcommand{\yellowcomment}[2]{\relax}
+  \newcommand{\cyancomment}[2]{\relax}
+  \newcommand{\bluecomment}[2]{\relax}
+  \newcommand{\redcomment}[2]{\relax}
+  \newcommand{\magentacomment}[2]{\relax}
+
+  \newcommand{\hey}[1]{\relax}
+  \newcommand{\bibtex}[1]{\relax}
+  \newcommand{\task}[1]{\relax}
+  \newcommand{\question}[1]{\relax}
+  \newcommand{\note}[1]{\relax}
+
+\else
+  % comment commands
+  % comments should be signed at the end with the initials of the comment writer.
+  \newcommand{\colorcomment}[3]{\par\noindent\textcolor{#1}{[{#2}: {#3}]}\par} % general case
+  \newcommand{\greencomment}[2]{\colorcomment{green}{#1}{#2}} % hard to read
+  \newcommand{\yellowcomment}[2]{\colorcomment{yellow}{#1}{#2}} % hard to read
+  \newcommand{\cyancomment}[2]{\colorcomment{cyan}{#1}{#2}} % hard to read
+  \newcommand{\bluecomment}[2]{\colorcomment{blue}{#1}{#2}}
+  \newcommand{\redcomment}[2]{\colorcomment{red}{#1}{#2}}
+  \newcommand{\magentacomment}[2]{\colorcomment{magenta}{#1}{#2}}
+
+  \newcommand{\hey}[1]{\textcolor{magenta}{[{#1}]}} % quick inline comment
+  \newcommand{\note}[1]{\magentacomment{Note}{#1}} % a paragraph comment.
+  \newcommand{\bibtex}[1]{\magentacomment{@bibtex}{#1}} % a reference that should go to bibtex
+  \newcommand{\task}[1]{\redcomment{Task}{#1}} % task the person with @name in the argument
+  \newcommand{\question}[1]{\bluecomment{Q?}{#1}} % ask a question
+\fi
+
+\usepackage{listings}
+\usepackage{color}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\definecolor{myred}{rgb}{0.58,0,0.0}
+\lstset{
+    language=C,
+         emph={when},
+         basicstyle=\footnotesize\ttfamily,
+         numberstyle=\tiny,
+         numbersep=5pt,
+         tabsize=2,
+         extendedchars=true,
+         breaklines=true,
+                keywordstyle=\color{mymauve}\ttfamily\bfseries,
+                emphstyle=\color{mymauve}\ttfamily\bfseries,
+                stringstyle=\color{myred}\ttfamily,
+                commentstyle=\color{mygreen}\ttfamily,
+                morecomment=[l][\color{mygray}]{\#},
+         showspaces=false,
+         showtabs=false,
+         xleftmargin=17pt,
+         framexleftmargin=17pt,
+         framexrightmargin=5pt,
+         framexbottommargin=4pt,
+         escapeinside={\%*}{*)},
+         showstringspaces=false
+ }
+
+%\usepackage{caption}
+%\DeclareCaptionFont{white}{\color{white}}
+%\DeclareCaptionFormat{listing}{\colorbox[cmyk]{0.43, 0.35, 0.35,0.01}{\parbox{\columnwidth}{\hspace{15pt}#1#2#3}}}
+%\captionsetup[lstlisting]{format=listing,labelfont=white,textfont=white, singlelinecheck=false, margin=0pt, font={bf,footnotesize}}
+
+\setcopyright{acmcopyright} % if you give the rights to ACM
+\acmDOI{...} % DOI - Insert your DOI below...
+\acmISBN{...} % ISBN - Insert your conference/workshop's ISBN below...
+\acmYear{2019} % Insert Publication year
+\copyrightyear{2019} % Insert Copyright year (typically the same as above)
+\acmPrice{15.00}
+\acmConference[IPSN]{The 18th ACM/IEEE Conference on Information Processing in Sensor Networks}{April 16-18, 2019}
+{Montreal, Canada}
+
+\hyphenation{WISP RFID CRFID CRFIDs RF volt-age}
+\newcommand{\sysname}{Surfeit\xspace}
+
+
+\begin{document}
+%\nocaptionrule % This removes the ugly line above table captions on SIGPLAN templates
+
+\clubpenalty=10000
+\widowpenalty=10000
+
+\title {\sysname: an Energy Burst Storage for tiny Self-Powered devices }
+
+
+
+\author{Arwa Alsubhi}
+\affiliation{%
+  \institution{Clemson University}
+  \department{School of Computing}
+}
+\email{aalsubh@clemson.edu}
+
+\author{Josiah Hester}
+\affiliation{%
+  \institution{Northwestern University}
+  \department{Department of Electrical Engineering and Computer Science}
+}
+\email{josiah@northwestern.edu}
+
+\author{Jacob Sorber}
+\affiliation{%
+  \institution{Clemson University}
+  \department{School of Computing}
+}
+\email{jsorber@clemson.edu}
+
+\renewcommand{\shortauthors}{A. Alsubhi et al.}
+
+
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+
+% Add this back in for camera-ready
+\ifsubmit
+
+\begin{CCSXML}
+<ccs2012>
+<concept>
+<concept_id>10010520.10010553.10010562</concept_id>
+<concept_desc>Computer systems organization~Embedded systems</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10010520.10010521</concept_id>
+<concept_desc>Computer systems organization~Architectures</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+<concept>
+<concept_id>10003120.10003138.10003140</concept_id>
+<concept_desc>Human-centered computing~Ubiquitous and mobile computing systems and tools</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Computer systems organization~Embedded systems}
+\ccsdesc[300]{Computer systems organization~Architectures}
+\ccsdesc[300]{Human-centered computing~Ubiquitous and mobile computing systems and tools}
+% We no longer use \terms command
+%\terms{Theory}
+
+\keywords{Occupancy, Batteryless, Intermittent, Energy harvesting}
+
+\fi
+
+\maketitle
+
+
+\input{introduction}
+\input{background}
+\input{system_design}
+\input{implementation}
+\input{eval}
+\input{related_work}
+\input{discussion}
+\input{conclusions}
+% ACKs only appear if anonymous flag is false for acmart.cls
+\begin{acks}
+\input{ack}
+\end{acks}
+
+\balance
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{persist}
+
+
+\end{document}

@@ -1,0 +1,37 @@
+all peripherals threshold need to be above mcu threshold. The Flicker mcu turns on at 2.5 volts and shutdown at 1.9
+Flicker's voltage reference for UFOP is 125mv and all threshold should be above it.
+
+
+1-Photocells:anything up to 100V  
+charge at 2.6v : R1= 100M  , R2= 5.1M , threshold = 126 mv
+fire interrupt at 2.9v : R1= 100M  , R2= 4.64M , threshold = 129 mv
+cap = 10uf
+
+2- leaf wetness sensor : (2.5 - 5) V
+current requirement at 2.5 V is around 2 mA, and a 5 V it is 7 to 8 mA.
+charge at 2.6v : R1= 100M  , R2= 5.1M , threshold = 126 mv
+fire interrupt at 2.9v : R1=100 M  , R2= 4.64 M , threshold = 129  mv
+cap = 15uf
+
+3- TMP35(temperature sensor): (2.7-5.5)
+current = 50 μA
+charge at 2.6v : R1= 100M  , R2= 5.1M , threshold = 126 mv
+fire interrupt at 2.9v : R1= 100M  , R2= 4.64M , threshold = 129 mv
+cap = 10uf
+
+
+4-Radio: (1.8-3.6)V
+to charge at 2.9v : R1= 100M  , R2= 4.64 M , threshold = 129 mv
+to fire interrupt at 3.1 :R1=100M , R2=4.22M , threshold = 126 mv
+cap = 47uf
+
+
+
+temp cap 10uf
+ accel cap = 2.2uf
+ radio cap = 47uf
+ humidity cap = 15uf
+
+
+
+
