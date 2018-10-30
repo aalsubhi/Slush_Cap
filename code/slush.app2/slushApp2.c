@@ -16,6 +16,8 @@ void Ports_config();
 void PortsINT_config();
 void TimerA_config();
 void Radio_Pins_config();
+void ADC_Pins_config();
+void ADC_config();
 
 uint8_t TX_buffer[TX_BUFFER_SIZE] = {0};
 uint8_t i=0, flag=0;
@@ -26,8 +28,8 @@ WDTCTL = WDTPW + WDTHOLD; // Stop watchdog timer
 PM5CTL0 &= ~LOCKLPM5;
 Ports_config(); //  setting all ports as input with pull down resistors
 TimerA_config();
-
-
+ADC_Pins_config();
+ADC_config();
 PJDIR |= BIT1; // set Radio Gate(PJ.1) as output
 P5DIR |= BIT0; // set wetness sensor Gate P5.0 as output
 P9DIR |=BIT0; // set light sensor Gate P9.0 as output
@@ -37,62 +39,32 @@ P9DIR |=BIT0; // set light sensor Gate P9.0 as output
      __bis_SR_register(LPM3_bits | GIE); // Enter LPM3 w/ interrupts
      if (  (P1IN & BIT0) && (P2IN & BIT7)) // if the   P2.7 wetness and P1.0 light sensors capacitors are charged
      {
-       // Configure P9.2 for ADC to read data from wetness sensor A10
-         P9DIR &=~ BIT2; // set P9.2 as input
-         P9SEL1 |= BIT2;
-         P9SEL0 |= BIT2;
+
         // Note that  ADC12CTL0 ,  ADC12CTL1 and ADC12MCTL0 Can be modified only when ADC12ENC = 0.
-        ADC12CTL0 &= ~ADC12ENC;                  //disable ADC conversion
-        ADC12CTL0 = ADC12SHT0_2 | ADC12ON;      // ADC12SHT0_2-> sample-and-hold time=16 cycles, ADC12ON-> ADC enable
-        ADC12CTL1 = ADC12SHP;                   // Source clock is sample timer
-        ADC12CTL2 |= ADC12RES_2;                // ADC12RES_2->12-bit conversion results
         ADC12MCTL0 |= ADC12INCH_10 ;       // ADC12INCH_1-> A10 ADC input select; Vref = VCC = 2V
-        ADC12IER0 |= ADC12IE0;                  // Enable ADC conv complete interrupt
-        // Enable the ADC.  This means we are done configuring it,
-         // so we can start the conversion.
-          ADC12CTL0 |= ADC12ENC;
       //turn on the wetness sensor by driving the gate high
           P5OUT |=BIT0;
         __delay_cycles(1000);
-          // Clear the start bit (as a precaution)
-         ADC12CTL0 &= ~ADC12SC;
         // Enable and start a single conversion
-         ADC12CTL0 |= ADC12SC;
+         ADC12CTL0 |= ADC12SC| ADC12ENC;
         _bis_SR_register(LPM0_bits | GIE); // LPM0, ADC12_ISR will force exit
         ADC_value[0] = ADC12MEM0; // Save MEM0
         P5OUT &= ~BIT0; // turn off the weteness sensor by driving the gate low
-       ADC12CTL0 &= ~ADC12ENC;                  //disable ADC conversion
+       ADC12CTL0 &= ~ADC12ENC;                  //disable ADC conversion so we can modify ADC12MCTL0 register and deselect A10 and select A9
        ADC12MCTL0 &= ~ADC12INCH_10 ;       // deselct A10
-       P9SEL1  &= ~ BIT2;
-       P9SEL0  &= ~  BIT2;
+       ADC12MCTL0 |= ADC12INCH_9 ;       //  select A9
 
-//////////////////////////////////////////////////
-      // Configure P9.1 for ADC to read data from light sensor A9
-      P9DIR &=~ BIT1; // set  P9.1 as input
-      P9SEL1 |= BIT1;
-      P9SEL0 |= BIT1;
-      // Note that  ADC12CTL0 ,  ADC12CTL1 and ADC12MCTLx Can be modified only when ADC12ENC = 0.
-      ADC12CTL0 &= ~ADC12ENC;                  //disable ADC conversion
-      ADC12CTL0 = ADC12SHT0_2 | ADC12ON;      // ADC12SHT0_2-> sample-and-hold time=16 cycles, ADC12ON-> ADC enable
-      ADC12CTL1 = ADC12SHP;                   // Source clock is sample timer , SSEL= 0 => ADC12clock = ADC12OSC (~5 MHz)
-      ADC12CTL2 |= ADC12RES_2;                // ADC12RES_2->12-bit conversion results
-      ADC12MCTL0 |= ADC12INCH_9 ;       // ADC12INCH_9-> A9 ADC input select; SREF = 000b = VCC = 2V
-      ADC12IER0 |= ADC12IE0;                  // Enable ADC conv complete interrupt
       //turn on the light sensor by driving the gate high
       P9OUT |=BIT0;
       __delay_cycles(1000);
-      // Enable the ADC.  This means we are done configuring it,
-       // so we can start the conversion.
-       ADC12CTL0 |= ADC12ENC;
       // Enable and start a single conversion
-       ADC12CTL0 |= ADC12SC;
+       ADC12CTL0 |= ADC12SC | ADC12ENC;
       _bis_SR_register(LPM0_bits | GIE); // LPM0, ADC12_ISR will force exit
       ADC_value[1] = ADC12MEM0; // Save MEM0
       P9OUT &= ~BIT0; // turn off the light sensor by driving the gate low
       ADC12CTL0 &= ~ADC12ENC;                  //disable ADC conversion
       ADC12MCTL0 &=~ ADC12INCH_9 ;       // deselct A9
-      P9SEL1 &=~ BIT1;
-      P9SEL0 &=~ BIT1;
+      
        // converting wetness and light sensors  from 32 bits variable to array of 8 bits to send it through radio
 
       TX_buffer[1] = (uint8_t) ((ADC_value[0] & 0x0000FF00) >> 8  );
@@ -187,6 +159,33 @@ void TimerA_config(){
   // if we need one second we set up the count mode to up and use 625 for TA0CCR0 value
   TA0CCTL0 = CCIE;          //set TA0CCTL0->Timer_A0 Capture/Compare Control 0 Register to CCIE-> Capture/compare interrupt enable
   TA0CTL |=TAIE; // TAIE-> Timer_A interrupt enable. This bit enables the TAIFG interrupt request, 0b = Interrupt disabled, 1b = Interrupt enabled
+
+}
+///////////////////////////////////////
+void ADC_Pins_config(){
+  // Configure P9.2 for ADC to read data from wetness sensor A10
+    P9DIR &=~ BIT2; // set P9.2 as input
+    P9SEL1 |= BIT2;
+    P9SEL0 |= BIT2;
+
+
+    // Configure P9.1 for ADC to read data from light sensor A9
+    P9DIR &=~ BIT1; // set  P9.1 as input
+    P9SEL1 |= BIT1;
+    P9SEL0 |= BIT1;
+
+
+}
+//////////////////////////////////////////////////////
+void ADC_config(){
+
+  // Note that  ADC12CTL0 ,  ADC12CTL1 and ADC12MCTL0 Can be modified only when ADC12ENC = 0.
+  ADC12CTL0 &= ~ADC12ENC;                  //disable ADC conversion
+  ADC12CTL0 = ADC12SHT0_2 | ADC12ON;      // ADC12SHT0_2-> sample-and-hold time=16 cycles, ADC12ON-> ADC enable
+  ADC12CTL1 = ADC12SHP;                   // Source clock is sample timer
+  ADC12CTL2 |= ADC12RES_2;                // ADC12RES_2->12-bit conversion results
+  ADC12IER0 |= ADC12IE0;                  // Enable ADC conv complete interrupt
+
 
 }
 //////////////////////////////////////////////////////////
